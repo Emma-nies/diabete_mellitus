@@ -1,6 +1,3 @@
-
-""" Bibliothèques """
-
 import time
 import os
 import pandas as pd
@@ -13,7 +10,7 @@ from selenium.webdriver.common.action_chains import ActionChains
 import requests
 from bs4 import BeautifulSoup
 import pandas as pd
-
+from sklearn.linear_model import LinearRegression
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 
@@ -322,7 +319,6 @@ if os.path.exists(csv_file_path):
     # Lire le fichier CSV téléchargé avec Pandas
     df = pd.read_csv(csv_file_path)
     
-    
     # Filtrer les années spécifiées
     df_filtered = df[df['Year'].isin([2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016])]
     
@@ -340,13 +336,30 @@ if os.path.exists(csv_file_path):
     # Réordonner les colonnes pour avoir les années dans l'ordre
     df_pivot_obesite = df_pivot_obesite[sorted(df_pivot_obesite.columns, key=int)]
 
+    # Interpoler les valeurs manquantes avec une régression linéaire
+    for entity in df_pivot_obesite.index:
+        df_entity = df_pivot_obesite.loc[entity]
+        known_years = df_entity.dropna().index.astype(int).values.reshape(-1, 1)
+        known_values = df_entity.dropna().values
+        
+        if len(known_years) > 1:  # S'assurer qu'il y a assez de données pour la régression
+            model = LinearRegression()
+            model.fit(known_years, known_values)
 
-    # Interpoler les valeurs manquantes
-    df_pivot_obesite = df_pivot_obesite.interpolate(method='linear', axis=1)
-    
+            missing_years = np.array(years_to_add).reshape(-1, 1)
+            predicted_values = model.predict(missing_years)
+
+            for i, year in enumerate(years_to_add):
+                df_pivot_obesite.at[entity, str(year)] = predicted_values[i]
+
     df_pivot_obesite.reset_index(inplace=True)
     
     df_obesity = pd.melt(df_pivot_obesite, id_vars=['Entity'], var_name='Year', value_name='obesity')
+    
+
+
+
+
 
 
 
@@ -354,5 +367,3 @@ df_diabetes['Year'] = df_diabetes['Year'].astype(int)
 df_obesity['Year'] = df_obesity['Year'].astype(int)
 df_calories['Year'] = df_calories['Year'].astype(int)
 df_combined = pd.merge(pd.merge(df_diabetes, df_obesity, on=['Entity', 'Year']), df_calories, on=['Entity', 'Year'])
-
-df_combined.to_csv('tous_data.csv', index=False)
