@@ -73,7 +73,7 @@ for entity in df_combined['Entity'].unique():
         
         future_preds = scaler.inverse_transform(np.array(future_preds).reshape(-1, 1)).flatten()
         years = range(2022, 2032)
-        forecast_df = pd.DataFrame({'year': years, column: future_preds, 'Entity': entity})
+        forecast_df = pd.DataFrame({'Year': years, column: future_preds, 'Entity': entity})
         
         if len(future_predictions) == 0:
             future_predictions = forecast_df
@@ -84,12 +84,10 @@ for entity in df_combined['Entity'].unique():
 ################# Création d'un dataframe avec les anciennes et nouvelles données #################
 
 df_future = future_predictions
-df_future['year'] = df_future['year'].astype(int)
+df_future['Year'] = df_future['Year'].astype(int)
 
 # Fusionner les données actuelles et futures
 data_dash = pd.concat([df_combined, df_future], ignore_index=True)
 
 # Sauvegarder les résultats
 data_dash.to_csv('output.csv', index=False, sep=';')
-
-print(data_dash.head())
