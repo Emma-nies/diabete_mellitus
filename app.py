@@ -3,11 +3,6 @@ import numpy as np
 import pycountry
 
 
-# Get list of all countries
-countries = [country.name for country in pycountry.countries]
-years = list(range(2003, 2023))
-
-
 import dash
 from dash import dcc, html
 from dash.dependencies import Input, Output, State
@@ -20,12 +15,14 @@ import plotly.graph_objects as go
 # Load the data
 df = pd.read_csv('output.csv')
 
+df.rename(columns={'Entity': 'Country','year':'Year', 'diabetes':'Diabetes','obesity':'Obesity','calories':'Overconsumption' }, inplace=True)
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
 app.title = "Global Health Dashboard"
 
 server = app.server 
+
 
 # Descriptions for each variable
 variable_descriptions = {
@@ -39,8 +36,8 @@ variable_descriptions = {
 
 color_scales = {
     "Diabetes": px.colors.sequential.Viridis,
-    "Obesity": px.colors.sequential.Agsunset,
-    "Overconsumption": px.colors.sequential.Plasma
+    "Obesity": px.colors.sequential.Bluyl_r,
+    "Overconsumption": px.colors.sequential.PuBu
 }
 
 
@@ -70,14 +67,17 @@ app.layout = html.Div([
                 'borderRadius': '5px'
             }),
         ], style={'float': 'right', 'display': 'inline-block'})
-    ], style={'padding': '20px', 'background-color': 'rgb(48,47,47)', 'borderBottom': '1px solid #dcdcdc'}),
+    ], style={'padding': '20px', 'background-color': 'rgb(48,47,47)', 'borderBottom': '2px solid #dcdcdc'}),
    
     # Content will be rendered here
     html.Div(id='page_content')
 ], style={
+    'width': '100%',
     'font-family': 'Helvetica, Arial, sans-serif',
+    'display': 'inline-block',
+    'verticalAlign': 'top',
     'backgroundColor': 'black',
-    'padding': '20px'
+    'padding': '10px'
 })
 
 
@@ -89,12 +89,15 @@ map_layout = html.Div([
             id='variable_selector_tabs',
             value='Diabetes',
             children=[
-                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px'}),
-                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px'}),
-                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px'}),
+                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
+                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
+                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
             ],
             style={
-                'backgroundColor': '#ecf0f1',
+                'backgroundColor': 'bleu',
                 'borderRadius': '5px'
             },
         ),
@@ -102,7 +105,7 @@ map_layout = html.Div([
         html.Div([
             html.P(id='variable_description', style={
                 'flex': '0 1 70%',
-                'margin-top': '10px',
+                'margin-top': '20px',
                 'color': '#34495e',
                 'padding': '10px',
                 'backgroundColor': '#ecf0f1',
@@ -110,6 +113,7 @@ map_layout = html.Div([
                 'font-size': '12px',  # Smaller font size
                 'font-weight': 'bold',  # Bold text
                 'font-style': 'italic',  # Italic text
+                'margin-left': '5px',
                 }),
             html.Button("Switch Projection", id="switch_projection", n_clicks=0, style={
                 'flex': '0 1 auto',
@@ -124,7 +128,7 @@ map_layout = html.Div([
                 'borderRadius': '5px'
             })
         ], style={'display': 'flex', 'align-items': 'center'}),
-        html.H3(id='map_title', style={'textAlign': 'center', 'color': 'red'}),
+        html.H3(id='map_title', style={'textAlign': 'center', 'color': '#4995ff'}),
         dcc.Graph(id='map', style={
             'padding': '10px'
         }),
@@ -141,7 +145,7 @@ map_layout = html.Div([
         'width': '100%',
         'display': 'inline-block',
         'verticalAlign': 'top',
-        'padding': '20px',
+        'padding': '0px',
         'backgroundColor': 'rgb(66,64,64)',
         'borderRadius': '10px',
         'boxShadow': '0px 0px 10px rgba(0,0,0,0.1)'
@@ -149,7 +153,7 @@ map_layout = html.Div([
     # Map section
     # Country Graph section (outside Select Variable and Map sections)
     html.Div([
-        html.H3(id='country_graph_title', style={'textAlign': 'center', 'color': '#16a085'}),
+        html.H3(id='country_graph_title', style={'textAlign': 'center', 'color': 'rgb(73, 149, 255)'}),
         dcc.Graph(id='country_graph', style={
             'margin-top': '20px',
             'backgroundColor': '#ffffff',
@@ -163,18 +167,20 @@ map_layout = html.Div([
 
 # Define the content for the Table page
 table_layout = html.Div([
-    html.H3("Select Variable", style={'margin-top': '10px', 'color': '#16a085'}),
    
         dcc.Tabs(
             id='table_variable_selector',
             value='Diabetes',
             children=[
-                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px'}),
-                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px'}),
-                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px'}),
+                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
+                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
+                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
             ],
             style={
-                'backgroundColor': '#ecf0f1',
+                'backgroundColor': 'bleu',
                 'borderRadius': '5px'
             },
         ),
@@ -184,7 +190,7 @@ table_layout = html.Div([
     dash_table.DataTable(
         id='table',
         style_table={'height': '400px', 'overflowY': 'auto', 'border': '1px solid #dddddd', 'borderRadius': '10px', 'width': '100%'},
-        style_header={'backgroundColor': '#red', 'fontWeight': 'bold', 'color': 'black'},
+        style_header={'backgroundColor': '#0063ff3d', 'fontWeight': 'bold', 'color': 'black'},
         style_cell={'textAlign': 'left', 'padding': '10px', 'whiteSpace': 'normal', 'height': 'auto', 'border': '1px solid #dddddd'},
         style_data={'backgroundColor': '#f3f3f3', 'border': '1px solid #dddddd'}
     ),
@@ -279,7 +285,11 @@ def update_map(selected_variable, selected_year, clickData, n_clicks):
    
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
-        paper_bgcolor="black"
+        paper_bgcolor="rgb(66, 64, 64)",  # Set the background color of the entire figure to red
+        plot_bgcolor="rgb(66, 64, 64)",   # Set the plot area background color to red
+        geo=dict(
+            bgcolor='rgb(66, 64, 64)'  # Set the background color of the geo area to red
+        )
     )
 
 
@@ -308,11 +318,11 @@ def update_country_graph(clickData, selected_variable):
     fig = go.Figure()
     fig.add_trace(go.Scatter(x=country_df['Year'], y=country_df[selected_variable],
                              mode='lines+markers', name=country,
-                             marker=dict(color='#1abc9c')))
+                             marker=dict(color='red')))
     fig.update_layout(title=f'{selected_variable} in {country} over Time',
                       xaxis_title='Year',
                       yaxis_title=selected_variable,
-                      paper_bgcolor="#ecf0f1")
+                      paper_bgcolor="white")
     return fig
 
 
@@ -347,4 +357,3 @@ def download_csv(n_clicks, selected_variable):
 # Run the app
 if __name__ == '__main__':
     app.run_server(debug=True)
-
