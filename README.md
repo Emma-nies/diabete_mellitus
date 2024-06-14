@@ -79,5 +79,5 @@ Le projet était intéressant d'un point de vu scrapping et design d'application
 Ce modèle aurait été plus efficace aussi si nous ne nous concentrions que dans des régions spécifiques, par exemple les continents, nous aurions eu des résultats plus cohérents avec ce procédé.
 
 Afin d'améliorer le projet, il faudrait utiliser plus de caractéristiques facteurs du diabètes, et se concentrer sur les continents ou plus petites régions.
-Cependant la limite des données étant leur existence en ligne pour la majorité de pays, c'est pour cela que nous ne nous sommes concentrées que sur le diabète, l'obésité et la surconsommation car nous étions sûres de trouver des résultats nombreux.
+Cependant la limite des données étant leur existence en ligne pour la majorité de pays, c'est pour cela que nous ne nous sommes concentrées que sur le diabète, l'obésité et la surconsommation car ce sont ces données que nous considérions les plus exploitables, accessibles.
 
