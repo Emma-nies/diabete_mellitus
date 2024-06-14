@@ -34,7 +34,7 @@ model.add(Dense(3))
 
 model.compile(optimizer='adam', loss='mean_squared_error', metrics=['accuracy'])
 
-history = model.fit(X_train, y_train, epochs=50, batch_size=32, validation_split=0.2)
+history = model.fit(X_train, y_train, epochs=500, batch_size=32, validation_split=0.2)
 
 loss = model.evaluate(X_test, y_test)
 print(f'Loss: {loss}')
