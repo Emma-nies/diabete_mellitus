@@ -13,17 +13,15 @@ import plotly.graph_objects as go
 
 
 # Load the data
-df = pd.read_csv('output.csv')
+df = pd.read_csv('output.csv', sep= ';')
+
 
 df.rename(columns={'Entity': 'Country','Year':'Year', 'diabetes':'Diabetes','obesity':'Obesity','calories':'Overconsumption' }, inplace=True)
-#df['Year'] = df['Year'].astype(int)
-
 # Initialize the Dash app
 app = dash.Dash(__name__)
 app.title = "Global Health Dashboard"
 
 server = app.server 
-
 
 # Descriptions for each variable
 variable_descriptions = {

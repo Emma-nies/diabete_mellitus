@@ -10,6 +10,7 @@ from sklearn.model_selection import train_test_split
 df_combined = pd.read_csv('tous_data.csv')
 
 
+
 ################# Pour le modèle on remplir les valeurs manquantes par interpolation
 df_combined.interpolate(method='linear', inplace=True)
 
@@ -31,7 +32,7 @@ future_predictions = []
 for entity in df_combined['Entity'].unique():
     entity_data = df_combined[df_combined['Entity'] == entity]
     
-    for column in ['calories', 'obesity', 'diabetes']:
+    for column in ['diabetes', 'obesity', 'calories']:
         data_series = entity_data[column].values.reshape(-1, 1)
         
         # Normalisation des données
@@ -72,13 +73,14 @@ for entity in df_combined['Entity'].unique():
             current_seq = np.append(current_seq[1:], prediction).reshape(-1, 1)
         
         future_preds = scaler.inverse_transform(np.array(future_preds).reshape(-1, 1)).flatten()
-        years = range(2022, 2032)
-        forecast_df = pd.DataFrame({'Year': years, column: future_preds, 'Entity': entity})
-        
-        if len(future_predictions) == 0:
-            future_predictions = forecast_df
-        else:
-            future_predictions = pd.concat([future_predictions, forecast_df], ignore_index=True)
+        entity_predictions[column] = future_preds
+    
+    forecast_df = pd.DataFrame(entity_predictions)
+    
+    if len(future_predictions) == 0:
+        future_predictions = forecast_df
+    else:
+        future_predictions = pd.concat([future_predictions, forecast_df], ignore_index=True)
 
 
 ################# Création d'un dataframe avec les anciennes et nouvelles données #################
