@@ -25,6 +25,7 @@ df = pd.read_csv('prevalence_data.csv')
 app = dash.Dash(__name__)
 app.title = "Global Health Dashboard"
 
+server = app.server 
 
 # Descriptions for each variable
 variable_descriptions = {
