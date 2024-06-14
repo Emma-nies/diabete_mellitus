@@ -11,8 +11,6 @@ Ce projet explore la relation entre le diabète, l'obésité et les habitudes de
 - [Fichiers](#fichiers)
 - [Modèle](#modèle)
 - [Résultats](#résultats)
-- [Contribuer](#contribuer)
-- [Licence](#licence)
 
 ## Introduction
 
