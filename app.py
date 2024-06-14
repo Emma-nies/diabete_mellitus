@@ -16,6 +16,7 @@ import plotly.graph_objects as go
 df = pd.read_csv('output.csv')
 
 df.rename(columns={'Entity': 'Country','year':'Year', 'diabetes':'Diabetes','obesity':'Obesity','calories':'Overconsumption' }, inplace=True)
+df['Year'] = df['Year'].astype(int)
 
 # Initialize the Dash app
 app = dash.Dash(__name__)
