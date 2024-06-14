@@ -18,7 +18,7 @@ import plotly.graph_objects as go
 
 
 # Load the data
-df = pd.read_csv('prevalence_data.csv')
+df = pd.read_csv('output.csv')
 
 
 # Initialize the Dash app
