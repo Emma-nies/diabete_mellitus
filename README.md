@@ -3,7 +3,7 @@ https://diabete-mellitus.onrender.com/
 
 # Prédiction de la Prévalence du Diabète et de l'Obésité
 
-Ce projet explore la relation entre le diabète, l'obésité et les habitudes de consommation à travers différents pays. En utilisant un modèle LSTM (Long Short-Term Memory), nous visons à estimer la prévalence future du diabète et de l'obésité en fonction des données historiques.
+Ce projet explore la relation entre le diabète, l'obésité et les habitudes de consommation à travers différents pays. En utilisant un modèle LSTM (Long Short-Term Memory) et SVR (Support Vector Regression), nous visons à estimer la prévalence future du diabète et de l'obésité en fonction des données historiques.
 
 ## Table des Matières
 
@@ -17,7 +17,7 @@ Ce projet explore la relation entre le diabète, l'obésité et les habitudes de
 
 ## Introduction
 
-L'augmentation de la prévalence du diabète et de l'obésité est une préoccupation majeure de santé publique dans le monde entier. Ce projet vise à analyser la relation entre les habitudes de consommation alimentaire, les taux de diabète et d'obésité dans différents pays. En appliquant un modèle LSTM, nous prédisons les tendances futures pour aider à la planification et à la mise en œuvre de stratégies de santé publique efficaces.
+L'augmentation de la prévalence du diabète et de l'obésité est une préoccupation majeure de santé publique dans le monde entier. Ce projet vise à analyser la relation entre les habitudes de consommation alimentaire, les taux de diabète et d'obésité dans différents pays. En appliquant un modèle LSTM/SVR, nous prédisons les tendances futures pour aider à la planification et à la mise en œuvre de stratégies de santé publique efficaces.
 
 ## Jeu de Données
 
@@ -43,7 +43,7 @@ Utilisez le script `Scrapping.py` pour collecter et prétraiter les données pro
 
 ### Entraînement du Modèle
 
-Entraînez le modèle LSTM en utilisant le script `LSTM.py`.
+Entraînez le modèle LSTM/SVR en utilisant le script `LSTM.py`.
 
 ### Application
 
@@ -53,6 +53,7 @@ Exécutez l'application pour visualiser et interagir avec les résultats des pr�
 
 - `Scrapping.py`: Script pour collecter et prétraiter les données.
 - `LSTM.py`: Script pour construire, entraîner et évaluer le modèle LSTM.
+- `SVR.py`: Script pour construire, entraîner et évaluer le modèle SVR.
 - `app.py`: Script pour éxecuter l'application de visualisation des prédictions.
 - `Procfile`: Fichier pour éxecuter l'application avec Render, l'hébergeur
 - `requirements.txt`: Fichier pour indiquer tous les packages à télécharger pour Render, l'hébergeur
@@ -62,13 +63,7 @@ Exécutez l'application pour visualiser et interagir avec les résultats des pr�
 ## Modèle
 
 Le modèle LSTM est conçu pour gérer les données de séries temporelles et capturer les dépendances à long terme. Il utilise des données historiques sur la prévalence du diabète, les taux d'obésité et les habitudes de consommation pour prédire les tendances futures.
-
-
-### Hyperparamètres
-
-- Taille du lot: 32
-- Époques: 500
--training set :0,8
+Le modèle SVR fait de même, mais les résultats obtenus sont plus pertinents, il a été décidé de garder ses résultats plutôt que ceux de LSTM.
 
 ## Résultats
 
@@ -78,6 +73,8 @@ La performance du modèle est évaluée en utilisant des métriques  telles que 
 Le projet était intéressant d'un point de vu scrapping et design d'application, cependant le modèle de prédiction, au vu des résultats de prédictions de 2022 à 2031; n'était pas satisfaisant. Le problème vient sûrement du fait que nous n'avons pas pris en compte tous les facteurs de cause du diabète, nous ne nous sommes limitées qu'aux données simples de diabètes, obésité et surconsommation historique car nous savions que ces données auraient été disponibles en masse.
 Ce modèle aurait été plus efficace aussi si nous ne nous concentrions que dans des régions spécifiques, par exemple les continents, nous aurions eu des résultats plus cohérents avec ce procédé.
 
+Cependant les résultats avec SVR ont été très intéressants, il a été jugé que les résultats obtenus sont beaucoup plus pertinents que ceux obtenus avec LSTM.
+
 Afin d'améliorer le projet, il faudrait utiliser plus de caractéristiques facteurs du diabètes, et se concentrer sur les continents ou plus petites régions.
-Cependant la limite des données étant leur existence en ligne pour la majorité de pays, c'est pour cela que nous ne nous sommes concentrées que sur le diabète, l'obésité et la surconsommation car nous étions sûres de trouver des résultats nombreux.
+Cependant la limite des données étant leur existence en ligne pour la majorité de pays, c'est pour cela que nous ne nous sommes concentrées que sur le diabète, l'obésité et la surconsommation car ce sont ces données que nous considérions les plus exploitables, accessibles.
 
