@@ -91,3 +91,5 @@ data_dash = pd.concat([df_combined, df_future], ignore_index=True)
 
 # Sauvegarder les résultats
 data_dash.to_csv('output.csv', index=False, sep=';')
+
+print(data_dash.head())
