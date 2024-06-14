@@ -6,8 +6,8 @@ from sklearn.model_selection import train_test_split
 
 
 
-df_combined = pd.merge(pd.merge(df_diabetes, df_obesity, on=['Entity', 'Year']), df_calories, on=['Entity', 'Year'])
 
+df_combined = pd.read_csv('tous_data.csv')
 
 
 ################# Pour le modèle on remplir les valeurs manquantes par interpolation
@@ -31,7 +31,7 @@ future_predictions = []
 for entity in df_combined['Entity'].unique():
     entity_data = df_combined[df_combined['Entity'] == entity]
     
-    for column in ['diabetes', 'obesity', 'calories']:
+    for column in ['calories', 'obesity', 'diabetes']:
         data_series = entity_data[column].values.reshape(-1, 1)
         
         # Normalisation des données
@@ -73,7 +73,7 @@ for entity in df_combined['Entity'].unique():
         
         future_preds = scaler.inverse_transform(np.array(future_preds).reshape(-1, 1)).flatten()
         years = range(2022, 2032)
-        forecast_df = pd.DataFrame({'Year': years, column: future_preds, 'Entity': entity})
+        forecast_df = pd.DataFrame({'year': years, column: future_preds, 'Entity': entity})
         
         if len(future_predictions) == 0:
             future_predictions = forecast_df
@@ -84,7 +84,7 @@ for entity in df_combined['Entity'].unique():
 ################# Création d'un dataframe avec les anciennes et nouvelles données #################
 
 df_future = future_predictions
-df_future['Year'] = df_future['Year'].astype(int)
+df_future['year'] = df_future['year'].astype(int)
 
 # Fusionner les données actuelles et futures
 data_dash = pd.concat([df_combined, df_future], ignore_index=True)
