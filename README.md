@@ -13,6 +13,7 @@ Ce projet explore la relation entre le diabète, l'obésité et les habitudes de
 - [Fichiers](#fichiers)
 - [Modèle](#modèle)
 - [Résultats](#résultats)
+- [Limites](#limites)
 
 ## Introduction
 
@@ -73,5 +74,10 @@ Le modèle LSTM est conçu pour gérer les données de séries temporelles et ca
 
 La performance du modèle est évaluée en utilisant des métriques  telles que l'accuracy. Les résultats indiquent l'efficacité du modèle pour prédire les tendances futures.
 
+## Limites
+Le projet était intéressant d'un point de vu scrapping et design d'application, cependant le modèle de prédiction, au vu des résultats de prédictions de 2022 à 2031; n'était pas satisfaisant. Le problème vient sûrement du fait que nous n'avons pas pris en compte tous les facteurs de cause du diabète, nous ne nous sommes limitées qu'aux données simples de diabètes, obésité et surconsommation historique car nous savions que ces données auraient été disponibles en masse.
+Ce modèle aurait été plus efficace aussi si nous ne nous concentrions que dans des régions spécifiques, par exemple les continents, nous aurions eu des résultats plus cohérents avec ce procédé.
 
+Afin d'améliorer le projet, il faudrait utiliser plus de caractéristiques facteurs du diabètes, et se concentrer sur les continents ou plus petites régions.
+Cependant la limite des données étant leur existence en ligne pour la majorité de pays, c'est pour cela que nous ne nous sommes concentrées que sur le diabète, l'obésité et la surconsommation car nous étions sûres de trouver des résultats nombreux.
 
