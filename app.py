@@ -40,6 +40,7 @@ color_scales = {
     "Overconsumption": px.colors.sequential.PuBu
 }
 
+variables_in_percent = ["Diabetes", "Obesity"]
 
 # Define the layout of the app
 app.layout = html.Div([
@@ -49,7 +50,7 @@ app.layout = html.Div([
         html.H1("Diabetes Mellitus Evolution", style={'display': 'inline-block', 'margin': '0', 'color': 'white'}),
         html.Div([
             html.Button("Map", id='map_button', style={
-                'background-color': 'rgb(66,127,210)',
+                'background-color': 'rgb(143, 210, 66)',
                 'color': 'white',
                 'border': 'none',
                 'padding': '10px 20px',
@@ -58,7 +59,7 @@ app.layout = html.Div([
                 'borderRadius': '5px'
             }),
             html.Button("Table", id='table_button', style={
-                'background-color': 'rgb(66,127,210)',
+                'background-color': 'rgb(143, 210, 66)',
                 'color': 'white',
                 'border': 'none',
                 'padding': '10px 20px',
@@ -186,17 +187,17 @@ table_layout = html.Div([
         ),
 
 
-    html.H3(id='table_title', style={'textAlign': 'center', 'color': '#16a085'}),
+    html.H3(id='table_title', style={'textAlign': 'center', 'color': 'rgb(73, 149, 255)'}),
     dash_table.DataTable(
         id='table',
         style_table={'height': '400px', 'overflowY': 'auto', 'border': '1px solid #dddddd', 'borderRadius': '10px', 'width': '100%'},
-        style_header={'backgroundColor': '#0063ff3d', 'fontWeight': 'bold', 'color': 'black'},
+        style_header={'backgroundColor': 'rgb(0 146 255 / 69%)', 'fontWeight': 'bold', 'color': 'black'},
         style_cell={'textAlign': 'left', 'padding': '10px', 'whiteSpace': 'normal', 'height': 'auto', 'border': '1px solid #dddddd'},
         style_data={'backgroundColor': '#f3f3f3', 'border': '1px solid #dddddd'}
     ),
     html.Button("Download Data", id="btn_csv", style={
         'margin-top': '20px',
-        'background-color': '#1abc9c',
+        'background-color': 'rgb(39, 93, 238)',
         'color': 'white',
         'border': 'none',
         'padding': '10px 20px',
@@ -285,6 +286,7 @@ def update_map(selected_variable, selected_year, clickData, n_clicks):
    
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
+        font=dict(color="white" ),
         paper_bgcolor="rgb(66, 64, 64)",  # Set the background color of the entire figure to red
         plot_bgcolor="rgb(66, 64, 64)",   # Set the plot area background color to red
         geo=dict(
@@ -326,6 +328,8 @@ def update_country_graph(clickData, selected_variable):
     return fig
 
 
+
+
 # Callback to update the table
 @app.callback(
     Output('table', 'data'),
@@ -338,7 +342,10 @@ def update_table(selected_variable):
     table_df = table_df.round(2)
     columns = [{"name": str(i), "id": str(i)} for i in table_df.columns]
     data = table_df.to_dict('records')
-    title = f'Table of {selected_variable} Data'
+    if selected_variable in variables_in_percent:
+        title = f'Table of {selected_variable} Data (in %)'
+    else:
+        title = f'Table of {selected_variable} Data'
     return data, columns, title
 
 
