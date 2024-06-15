@@ -16,27 +16,26 @@ import plotly.graph_objects as go
 df = pd.read_csv('output.csv', sep= ';')
 
 
-df.rename(columns={'Entity': 'Country','Year':'Year', 'diabetes':'Diabetes','obesity':'Obesity','calories':'Overconsumption' }, inplace=True)
+df.rename(columns={'Entity': 'Country', 'Year': 'Year', 'diabetes': 'Diabetes', 'obesity': 'Obesity', 'calories': 'Consumption'}, inplace=True)
 # Initialize the Dash app
 app = dash.Dash(__name__)
 app.title = "Global Health Dashboard"
 
 server = app.server 
-
 # Descriptions for each variable
 variable_descriptions = {
     "Diabetes": "Diabetes is a chronic (long-lasting) health condition that affects how your body turns food into energy. "
                 "The prevalence of diabetes refers to the percentage of the population that has been diagnosed with diabetes.",
     "Obesity": "Obesity is a complex disease involving an excessive amount of body fat. "
                "The prevalence of obesity refers to the percentage of the population that is considered obese.",
-    "Overconsumption": "Overconsumption refers to the excessive consumption of food, leading to negative health effects such as obesity and other related conditions."
+    "Consumption": "Daily supply of calories per person. Measured in kilocalories per person per day. "
+                   "This indicates the calories that are available for consumption, but does not necessarily measure the number of calories actually consumed, since it does not factor in consumer waste."
 }
-
 
 color_scales = {
     "Diabetes": px.colors.sequential.Viridis,
     "Obesity": px.colors.sequential.Bluyl_r,
-    "Overconsumption": px.colors.sequential.PuBu
+    "Consumption": px.colors.sequential.PuBu
 }
 
 variables_in_percent = ["Diabetes", "Obesity"]
@@ -46,13 +45,14 @@ app.layout = html.Div([
     dcc.Location(id='url', refresh=False),
     # Header
     html.Div([
-        html.H1("Diabetes Mellitus Evolution", style={'display': 'inline-block', 'margin': '0', 'color': 'white'}),
+        html.Img(src='https://i.goopics.net/slfuw3.png', style={'height': '40px', 'margin-right': '10px'}),
+            html.H1("Diabetes Mellitus Evolution", style={'display': 'inline-block', 'margin': '0', 'color': 'white'}),
         html.Div([
             html.Button("Map", id='map_button', style={
                 'background-color': 'rgb(143, 210, 66)',
                 'color': 'white',
                 'border': 'none',
-                'padding': '10px 20px',
+                'padding': '12px 22px',
                 'margin': '0 10px',
                 'cursor': 'pointer',
                 'borderRadius': '5px'
@@ -61,7 +61,7 @@ app.layout = html.Div([
                 'background-color': 'rgb(143, 210, 66)',
                 'color': 'white',
                 'border': 'none',
-                'padding': '10px 20px',
+                'padding': '12px 22px',
                 'margin': '0 10px',
                 'cursor': 'pointer',
                 'borderRadius': '5px'
@@ -80,7 +80,6 @@ app.layout = html.Div([
     'padding': '10px'
 })
 
-
 # Define the content for the Map page
 map_layout = html.Div([
     # Select Variable section
@@ -89,12 +88,12 @@ map_layout = html.Div([
             id='variable_selector_tabs',
             value='Diabetes',
             children=[
-                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
-                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
-                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
+                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
+                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
+                dcc.Tab(label='Consumption', value='Consumption', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                        selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
             ],
             style={
                 'backgroundColor': 'bleu',
@@ -114,7 +113,7 @@ map_layout = html.Div([
                 'font-weight': 'bold',  # Bold text
                 'font-style': 'italic',  # Italic text
                 'margin-left': '5px',
-                }),
+            }),
             html.Button("Switch Projection", id="switch_projection", n_clicks=0, style={
                 'flex': '0 1 auto',
                 'margin-left': 'auto',
@@ -139,7 +138,8 @@ map_layout = html.Div([
             value=df['Year'].min(),
             marks={str(year): str(year) for year in range(df['Year'].min(), df['Year'].max() + 1)},
             step=None,
-            tooltip={"placement": "bottom", "always_visible": True}
+            tooltip={"placement": "bottom", "always_visible": True},
+            updatemode='drag'  # This updates the figure while dragging
         )
     ], style={
         'width': '100%',
@@ -160,32 +160,52 @@ map_layout = html.Div([
             'borderRadius': '10px',
             'padding': '10px',
             'boxShadow': '0px 0px 10px rgba(0,0,0,0.1)'
+        }),
+        html.P(id='country_graph_text', style={
+            'textAlign': 'center',
+            'color': 'white',
+            'padding': '10px',
+            'backgroundColor': 'rgb(48,47,47)',
+            'borderRadius': '10px',
+            'margin-top': '20px'
         })
     ], id='country_graph_container', style={'display': 'none', 'width': '95%', 'padding': '20px', 'backgroundColor': '#black', 'borderRadius': '10px', 'boxShadow': '0px 0px 10px rgba(0,0,0,0.1)'}),
 ])
 
-
 # Define the content for the Table page
 table_layout = html.Div([
-   
-        dcc.Tabs(
-            id='table_variable_selector',
-            value='Diabetes',
-            children=[
-                dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
-                dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
-                dcc.Tab(label='Overconsumption', value='Overconsumption', style={'padding': '10px','border-radius':'10px', 'backgroundColor':'rgba(0, 107, 254, 0.48)', 'color':'#ffffff'},
-                        selected_style={'padding': '10px', 'border-radius':'10px', 'backgroundColor':'#006BFE', 'color':'#ffffff'}),
-            ],
-            style={
-                'backgroundColor': 'bleu',
-                'borderRadius': '5px'
-            },
-        ),
-
-
+    dcc.Tabs(
+        id='table_variable_selector',
+        value='Diabetes',
+        children=[
+            dcc.Tab(label='Diabetes', value='Diabetes', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                    selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
+            dcc.Tab(label='Obesity', value='Obesity', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                    selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
+            dcc.Tab(label='Consumption', value='Consumption', style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': 'rgba(0, 107, 254, 0.48)', 'color': '#ffffff'},
+                    selected_style={'padding': '10px', 'border-radius': '10px', 'backgroundColor': '#006BFE', 'color': '#ffffff'}),
+        ],
+        style={
+            'backgroundColor': 'bleu',
+            'borderRadius': '5px'
+        },
+    ),
+    dcc.Dropdown(
+        id='country_selector',
+        options=[{'label': country, 'value': country} for country in df['Country'].unique()],
+        multi=True,
+        placeholder="Select countries",
+        style={'margin-top': '10px'},
+        className='custom-dropdown'
+    ),
+    dcc.Dropdown(
+        id='year_selector',
+        options=[{'label': str(year), 'value': year} for year in df['Year'].unique()],
+        multi=True,
+        placeholder="Select years",
+        style={'margin-top': '10px'},
+        className='custom-dropdown'
+    ),
     html.H3(id='table_title', style={'textAlign': 'center', 'color': 'rgb(73, 149, 255)'}),
     dash_table.DataTable(
         id='table',
@@ -211,7 +231,6 @@ table_layout = html.Div([
     'boxShadow': '0px 0px 10px rgba(0,0,0,0.1)'
 })
 
-
 # Callback to navigate between pages
 @app.callback(
     Output('url', 'pathname'),
@@ -221,12 +240,10 @@ table_layout = html.Div([
 def display_page(map_clicks, table_clicks):
     ctx = dash.callback_context
 
-
     if not ctx.triggered:
         return '/'
     else:
         button_id = ctx.triggered[0]['prop_id'].split('.')[0]
-
 
     if button_id == 'map_button':
         return '/map'
@@ -234,7 +251,6 @@ def display_page(map_clicks, table_clicks):
         return '/table'
     else:
         return '/'
-
 
 # Callback to update the content based on the selected page
 @app.callback(
@@ -249,7 +265,6 @@ def display_page(pathname):
     else:
         return map_layout
 
-
 # Callback to update the variable description
 @app.callback(
     Output('variable_description', 'children'),
@@ -257,7 +272,6 @@ def display_page(pathname):
 )
 def update_description(selected_variable):
     return variable_descriptions[selected_variable]
-
 
 # Callback to update the map
 @app.callback(
@@ -272,6 +286,11 @@ def update_map(selected_variable, selected_year, clickData, n_clicks):
    
     projection_type = "orthographic" if n_clicks % 2 == 1 else "equirectangular"
 
+    # Custom hover text with "Click on me" in red
+    unit = "%" if selected_variable in variables_in_percent else "kcal"
+    filtered_df['hover_text'] = filtered_df.apply(
+        lambda row: f"<span style='font-size:15px;'><b>{row['Country']}</b></span><br><br><b>{selected_variable}: {round(row[selected_variable], 2) if selected_variable in variables_in_percent else int(row[selected_variable])}{unit}</b><br><span style='color:rgb(143, 210, 66);'>Click on me</span>", axis=1
+    )
 
     fig = px.choropleth(
         filtered_df,
@@ -279,86 +298,186 @@ def update_map(selected_variable, selected_year, clickData, n_clicks):
         locationmode='country names',
         color=selected_variable,
         hover_name="Country",
+        hover_data={'hover_text': True, 'Country': False, selected_variable: False},  # Use custom hover text
         color_continuous_scale=color_scales[selected_variable],  # Use the appropriate color scale
-        projection=projection_type
+        projection=projection_type,
+        custom_data=['hover_text']
     )
    
     fig.update_layout(
         margin={"r":0,"t":0,"l":0,"b":0},
         font=dict(color="white" ),
-        paper_bgcolor="rgb(66, 64, 64)",  # Set the background color of the entire figure to red
-        plot_bgcolor="rgb(66, 64, 64)",   # Set the plot area background color to red
+        paper_bgcolor="rgb(66, 64, 64)",  # Set the background color of the entire figure
+        plot_bgcolor="rgb(66, 64, 64)",   # Set the plot area background color
         geo=dict(
-            bgcolor='rgb(66, 64, 64)'  # Set the background color of the geo area to red
+            bgcolor='rgb(66, 64, 64)'  # Set the background color of the geo area
         )
     )
 
+    # Update hover template
+    fig.update_traces(hovertemplate="%{customdata[0]}")
 
-    map_title = f'{selected_variable} in {selected_year}'
+    if selected_variable in variables_in_percent:
+        title = f'{selected_variable} in {selected_year} (in %)'
+    else:
+        title = f'{selected_variable} in {selected_year} (in kcal)'
 
+    map_title = title
 
     if clickData is None:
         return fig, map_title, {'display': 'none'}, ""
 
-
     country = clickData['points'][0]['location']
-    title = f'{selected_variable} in {country} over Time'
-    return fig, map_title, {'display': 'block'}, title
+    if selected_variable in variables_in_percent:
+        title = f'{selected_variable} in {country} over Time (in %)'
+    else:
+        title = f'{selected_variable} in {country} over Time (in kcal)'
 
+    return fig, map_title, {'display': 'block'}, title
 
 # Callback to update the country graph
 @app.callback(
     Output('country_graph', 'figure'),
+    Output('country_graph_text', 'children'),
     [Input('map', 'clickData'), Input('variable_selector_tabs', 'value')]
 )
 def update_country_graph(clickData, selected_variable):
     if clickData is None:
-        return go.Figure()
+        return go.Figure(), ""
+    
     country = clickData['points'][0]['location']
     country_df = df[df['Country'] == country]
+    
+    # Calculate the yearly change
+    country_df['yearly_change'] = country_df[selected_variable].diff()
+    avg_change = country_df['yearly_change'].mean()
+    
+    # Separate current and predicted data
+    current_data = country_df[country_df['Year'] < 2022]
+    predicted_data = country_df[country_df['Year'] >= 2022]
+    
     fig = go.Figure()
-    fig.add_trace(go.Scatter(x=country_df['Year'], y=country_df[selected_variable],
-                             mode='lines+markers', name=country,
-                             marker=dict(color='red')))
-    fig.update_layout(title=f'{selected_variable} in {country} over Time',
-                      xaxis_title='Year',
-                      yaxis_title=selected_variable,
-                      paper_bgcolor="white")
-    return fig
+    
+    # Define rounding function
+    if selected_variable in variables_in_percent:
+        round_value = lambda x: round(x, 2)
+        change_unit = "%"
+    else:
+        round_value = lambda x: int(x)
+        change_unit = "kcal"
+    
+    # Plot current data
+    fig.add_trace(go.Scatter(
+        x=current_data['Year'], 
+        y=current_data[selected_variable].apply(round_value),
+        mode='lines+markers', 
+        name='Prevalence',
+        line=dict(color='red'),
+        marker=dict(color='red')
+    ))
+    
+    # Plot predicted data
+    fig.add_trace(go.Scatter(
+        x=predicted_data['Year'], 
+        y=predicted_data[selected_variable].apply(round_value),
+        mode='lines+markers', 
+        name='Prediction',
+        line=dict(color='orange'),
+        marker=dict(color='orange')
+    ))
 
+    # Connect current and predicted data
+    if not current_data.empty and not predicted_data.empty:
+        connection_line = go.Scatter(
+            x=[current_data['Year'].iloc[-1], predicted_data['Year'].iloc[0]],
+            y=[current_data[selected_variable].apply(round_value).iloc[-1], predicted_data[selected_variable].apply(round_value).iloc[0]],
+            mode='lines', 
+            line=dict(color='#EC745A'),
+            showlegend=False
+        )
+        fig.add_trace(connection_line)
+    
+    if selected_variable in variables_in_percent:
+        title = f'Prevalence of {selected_variable} in {country} among adults over Time'
+        yaxis_title = f'{selected_variable}'
+        yaxis = dict(ticksuffix='%')
+    else:
+        title = f'Prevalence of {selected_variable} in {country} among adults over Time'
+        yaxis_title = f'{selected_variable} (kcal)'
+        yaxis = dict(ticksuffix='kcal')
 
+    fig.update_layout(
+        title=title,
+        xaxis_title='Year',
+        yaxis_title=yaxis_title,
+        yaxis=yaxis,
+        paper_bgcolor="white",
+        legend_title_text=' '
+    )
 
+    if selected_variable in variables_in_percent:
+        trend = "increasing" if avg_change > 0 else "decreasing"
+        explanation_text = (f"In {country}, the average yearly change in {selected_variable.lower()} among adults is "
+                            f"{round(avg_change, 2)} percentage points, indicating a {trend} trend over the years. ")
+    else:
+        trend = "increasing" if avg_change > 0 else "decreasing"
+        explanation_text = (f"In {country}, the average yearly change in {selected_variable.lower()} among adults is "
+                            f"{int(avg_change)} kcal, indicating a {trend} trend over the years. ")
+
+    return fig, explanation_text
 
 # Callback to update the table
 @app.callback(
     Output('table', 'data'),
     Output('table', 'columns'),
     Output('table_title', 'children'),
-    [Input('table_variable_selector', 'value')]
+    [Input('table_variable_selector', 'value'),
+     Input('country_selector', 'value'),
+     Input('year_selector', 'value')]
 )
-def update_table(selected_variable):
-    table_df = df.pivot(index='Country', columns='Year', values=selected_variable).reset_index()
+def update_table(selected_variable, selected_countries, selected_years):
+    filtered_df = df.copy()
+    
+    if selected_countries:
+        filtered_df = filtered_df[filtered_df['Country'].isin(selected_countries)]
+    
+    if selected_years:
+        filtered_df = filtered_df[filtered_df['Year'].isin(selected_years)]
+
+    filtered_df = filtered_df.groupby(['Country', 'Year'], as_index=False).agg({selected_variable: 'mean'})
+    
+    table_df = filtered_df.pivot(index='Country', columns='Year', values=selected_variable).reset_index()
     table_df = table_df.round(2)
+    
     columns = [{"name": str(i), "id": str(i)} for i in table_df.columns]
     data = table_df.to_dict('records')
+    
     if selected_variable in variables_in_percent:
         title = f'Table of {selected_variable} Data (in %)'
     else:
-        title = f'Table of {selected_variable} Data'
+        title = f'Table of {selected_variable} Data (in kcal)'
+    
     return data, columns, title
 
-
-# Callback to download the data
 @app.callback(
     Output("download-dataframe-csv", "data"),
     [Input("btn_csv", "n_clicks")],
-    [State('table_variable_selector', 'value')],
+    [State('table_variable_selector', 'value'),
+     State('country_selector', 'value'),
+     State('year_selector', 'value')],
     prevent_initial_call=True,
 )
-def download_csv(n_clicks, selected_variable):
-    table_df = df.pivot(index='Country', columns='Year', values=selected_variable).reset_index()
+def download_csv(n_clicks, selected_variable, selected_countries, selected_years):
+    filtered_df = df.copy()
+    
+    if selected_countries:
+        filtered_df = filtered_df[filtered_df['Country'].isin(selected_countries)]
+    
+    if selected_years:
+        filtered_df = filtered_df[filtered_df['Year'].isin(selected_years)]
+    
+    table_df = filtered_df.pivot(index='Country', columns='Year', values=selected_variable).reset_index()
     return dcc.send_data_frame(table_df.to_csv, f"{selected_variable}_data.csv")
-
 
 # Run the app
 if __name__ == '__main__':
